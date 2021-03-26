@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:weatherbi/Cubit/WeatherState.dart';
 import 'package:weatherbi/Utils/Constant.dart';
 
-void main() => runApp(Details());
+class Details extends StatefulWidget {
+  @override
+  _DetailsState createState() => _DetailsState();
+}
 
-class Details extends StatelessWidget {
+class _DetailsState extends State<Details> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      var weather = ModalRoute.of(context).settings.arguments as Map;
+      print(weather['state']);
+    });
     return SafeArea(
       child: Center(
         child: Padding(
@@ -14,12 +27,16 @@ class Details extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               buildAppBarTitle(),
+              Text(
+                "Partly Cloud",
+                style: Constant().mainTitle.copyWith(fontWeight: FontWeight.w300, fontSize: 64),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   buildMiddleLeftDesign(),
                   Padding(
-                    padding: const EdgeInsets.only(top: 86),
+                    padding: const EdgeInsets.only(top: 12),
                     child: buildMiddleAllRight(topValue: 28, bottomValue: 17),
                   ),
                 ],
@@ -95,10 +112,6 @@ class Details extends StatelessWidget {
   Column buildMiddleLeftDesign() {
     return Column(
       children: [
-        Text(
-          "Clear",
-          style: Constant().mainTitle.copyWith(fontWeight: FontWeight.w300, fontSize: 64),
-        ),
         Stack(
           children: [
             Positioned(
