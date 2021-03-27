@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weatherbi/Cubit/WeatherCubit.dart';
 import 'package:weatherbi/Cubit/WeatherState.dart';
 import 'package:weatherbi/Utils/Constant.dart';
 
@@ -15,10 +17,33 @@ class _DetailsState extends State<Details> {
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      var weather = ModalRoute.of(context).settings.arguments as Map;
-      print(weather['state']);
-    });
+    return BlocConsumer<WeatherCubit, WeatherState>(
+      listener: (context, state) {
+        if (state is WeatherError) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      builder: (context, state) {
+        /* if (state is WeatherInitial) {
+          return buildSafeArea(context);
+        } */
+        if (state is WeatherLoading) {
+          return CircularProgressIndicator();
+        } else if (state is WeatherDone) {
+          return buildSafeArea(context, state);
+        } else {
+          return buildError(state);
+        }
+      },
+    );
+  }
+
+  Text buildError(WeatherState state) {
+    final error = state as WeatherError;
+    return Text(error.message);
+  }
+
+  SafeArea buildSafeArea(BuildContext context, WeatherDone state) {
     return SafeArea(
       child: Center(
         child: Padding(
@@ -26,15 +51,15 @@ class _DetailsState extends State<Details> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              buildAppBarTitle(),
+              buildAppBarTitle(state),
               Text(
-                "Partly Cloud",
+                state.weather.current.condition.text,
                 style: Constant().mainTitle.copyWith(fontWeight: FontWeight.w300, fontSize: 64),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  buildMiddleLeftDesign(),
+                  buildMiddleLeftDesign(state),
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
                     child: buildMiddleAllRight(topValue: 28, bottomValue: 17),
@@ -109,7 +134,7 @@ class _DetailsState extends State<Details> {
     );
   }
 
-  Column buildMiddleLeftDesign() {
+  Column buildMiddleLeftDesign(WeatherDone state) {
     return Column(
       children: [
         Stack(
@@ -129,7 +154,7 @@ class _DetailsState extends State<Details> {
             Padding(
               padding: const EdgeInsets.only(right: 32),
               child: Text(
-                '23',
+                state.weather.current.feelslikeC.toString(),
                 style: Constant().mainTitle.copyWith(fontWeight: FontWeight.w200, fontSize: 128),
               ),
             ),
@@ -139,15 +164,15 @@ class _DetailsState extends State<Details> {
     );
   }
 
-  Column buildAppBarTitle() {
+  Column buildAppBarTitle(WeatherDone state) {
     return Column(
       children: [
         Text(
-          "Eskişehir",
+          state.weather.location.name,
           style: Constant().mainTitle.copyWith(fontWeight: FontWeight.w300),
         ),
         Text(
-          "12:30",
+          state.weather.location.localtime,
           style: Constant().mainTitle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
         ),
       ],

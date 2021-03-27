@@ -19,7 +19,8 @@ class _HomePageState extends State<HomePage> {
     return BlocConsumer<WeatherCubit, WeatherState>(
       listener: (context, state) {
         if (state is WeatherError) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
@@ -90,7 +91,8 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           BlocProvider.of<WeatherCubit>(context).getLocation(tfcity.text);
           if (state is WeatherDone) {
-            Navigator.pushNamed(context, '/details', arguments: {'state': state});
+            Navigator.pushNamed(context, '/details',
+                arguments: {'state': state});
           }
         },
         child: Text(
