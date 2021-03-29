@@ -55,27 +55,16 @@ class _DetailsState extends State<Details> {
               Text(
                 state.weather.current.condition.text,
                 style: Constant().mainTitle.copyWith(fontWeight: FontWeight.w300, fontSize: 64),
+                textAlign: TextAlign.center,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  buildMiddleLeftDesign(state),
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
-                    child: buildMiddleAllRight(topValue: 28, bottomValue: 17),
+                    child: buildMiddleLeftDesign(state),
                   ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  buildMiddleAllRight(topValue: 28, bottomValue: "M", isSeen: false),
-                  buildMiddleAllRight(topValue: 28, bottomValue: "T", isSeen: false),
-                  buildMiddleAllRight(topValue: 28, bottomValue: "W", isSeen: false),
-                  buildMiddleAllRight(topValue: 28, bottomValue: "T", isSeen: false),
-                  buildMiddleAllRight(topValue: 28, bottomValue: "F", isSeen: false),
-                  buildMiddleAllRight(topValue: 28, bottomValue: "S", isSeen: false),
-                  buildMiddleAllRight(topValue: 28, bottomValue: "S", isSeen: false),
+                  // buildMiddleAllRight(topValue: 28, bottomValue: 17),
                 ],
               ),
             ],

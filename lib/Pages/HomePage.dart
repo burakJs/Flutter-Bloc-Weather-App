@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:weatherbi/Cubit/WeatherCubit.dart';
 import 'package:weatherbi/Cubit/WeatherState.dart';
+import 'package:weatherbi/Models/Weather.dart';
 import 'package:weatherbi/Utils/Constant.dart';
 
 void main() => runApp(HomePage());
@@ -19,8 +21,7 @@ class _HomePageState extends State<HomePage> {
     return BlocConsumer<WeatherCubit, WeatherState>(
       listener: (context, state) {
         if (state is WeatherError) {
-          Scaffold.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
@@ -46,7 +47,8 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           mainTitleText(),
-          mainGetWeatherTextField(),
+          // mainGetWeatherTextField(),
+          autoCompleteTextField(),
           mainGetWeatherButton(context, state),
         ],
       ),
@@ -62,24 +64,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  TextField mainGetWeatherTextField() {
-    return TextField(
-      controller: tfcity,
-      textAlign: TextAlign.center,
-      style: Constant().mainHintStyle,
-      decoration: InputDecoration(
-        prefixIcon: Icon(
-          Icons.location_on,
-          color: Colors.white,
-          size: 48,
-        ),
-        hintText: "Location",
-        hintStyle: Constant().mainHintStyle,
-        border: InputBorder.none,
-      ),
-    );
-  }
-
   Container mainGetWeatherButton(BuildContext context, WeatherState state) {
     return Container(
       height: Constant().getHeight(context) / 15,
@@ -90,10 +74,8 @@ class _HomePageState extends State<HomePage> {
         ),
         onPressed: () {
           BlocProvider.of<WeatherCubit>(context).getLocation(tfcity.text);
-          if (state is WeatherDone) {
-            Navigator.pushNamed(context, '/details',
-                arguments: {'state': state});
-          }
+          Navigator.pushNamed(context, '/details', arguments: {'state': state});
+          tfcity.text = "";
         },
         child: Text(
           "Get Weather",
@@ -106,5 +88,37 @@ class _HomePageState extends State<HomePage> {
   Text buildError(WeatherState state) {
     final error = state as WeatherError;
     return Text(error.message);
+  }
+
+  TypeAheadField autoCompleteTextField() {
+    return TypeAheadField<Location>(
+      textFieldConfiguration: TextFieldConfiguration(
+        style: TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          prefixIcon: Icon(
+            Icons.location_on,
+            color: Colors.white,
+            size: 48,
+          ),
+          hintText: "Location",
+          hintStyle: Constant().mainHintStyle,
+          border: InputBorder.none,
+        ),
+      ),
+      hideSuggestionsOnKeyboardHide: false,
+      suggestionsCallback: BlocProvider.of<WeatherCubit>(context).getSuggestionandLoad,
+      itemBuilder: (context, Location suggestion) {
+        var data = suggestion.name;
+        return ListTile(
+          tileColor: Colors.transparent,
+          title: data == null ? Text("Nothing") : Text(data),
+        );
+      },
+      onSuggestionSelected: (Location selected) {
+        BlocProvider.of<WeatherCubit>(context).getLocation(selected.name);
+        Navigator.pushNamed(context, '/details');
+        tfcity.text = "";
+      },
+    );
   }
 }
